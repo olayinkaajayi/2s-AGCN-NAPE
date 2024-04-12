@@ -178,10 +178,22 @@ class Model(nn.Module):
         bn_init(self.data_bn, 1)
 
     def forward(self, x):
-        N, C, T, V, M = x.size()
 
+        if self.pos_encode is not None:
+            x = self.proj_input(x) # project only when using position encoding
+            # we use .detach() for the position encoding
+            # so it is not part of the computation graph when computing gradients.
+            pos_encode = self.pos_encode.detach()
+            x = x + pos_encode.repeat(2,1) #Add position encoding
+
+        # Reshape to suite model
+        N, T, V2, C = x.size()
+        x = x.view(N,T,2,-1,C).permute(0,4,1,3,2).contiguous()
+
+
+        N, C, T, V, M = x.size()
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
-        x = self.data_bn(x)
+        x = self.data_bn(x) ########## CONSIDER ADDING POSITION ENCODING AFTER NORMALIZATION
         x = x.view(N, M, V, C, T).permute(0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
 
         x = self.l1(x)
