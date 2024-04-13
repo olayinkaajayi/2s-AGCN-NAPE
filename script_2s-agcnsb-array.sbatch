@@ -4,7 +4,7 @@
 #SBATCH --partition=sip-ampere  # Partition you wish to use
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8      # Number of CPU threads used by your job
-#SBATCH --gres=gpu:1           # Number of GPUs to use 
+#SBATCH --gres=gpu:2           # Number of GPUs to use 
 
 ### # ## # SBATCH --array=0-3  # One job for each of the 4 data cases (modify if needed)
 #                    # 0 - cv60 (cross-view)
@@ -68,7 +68,7 @@ code=/dcs/pg20/u2034358/codes/2s-AGCN-NAPE/main.py
 
 
 # cd codes
-# conda activate yinka_env
+conda activate yinka_env
 
 python main.py --config ./config/nturgbd-cross-view/train_joint.yaml 
 # python main.py --config ./config/nturgbd-cross-view/train_bone.yaml &

@@ -33,7 +33,7 @@ model_args:
 
 # test 
 phase: test
-device: [0]
+device: [0,1]
 test_batch_size: 256
 weights: ./runs/ntu_cv_agcn_joint-49-29400.pt
 
