@@ -28,15 +28,15 @@ model_args:
     labeling_mode: 'spatial'
   d: 8
   PE_name: 'checkpoint_betaNAPE_ntu-sb.pt'
-  use_PE: False
+  use_PE: True
 
 
 # test 
 phase: test
 device: [0,1]
 test_batch_size: 256
-weights: ./runs/ntu_cv_agcn_train_joint-49-29400.pt
+weights: ./runs-NAPE/ntu_cv_agcn_train_joint-49-29400.pt
 
-work_dir: ./work_dir/ntu/xview/agcn_test_joint
-model_saved_name: ./runs/ntu_cv_agcn_test_joint
+work_dir: ./work_dir-NAPE/ntu/xview/agcn_test_joint
+model_saved_name: ./runs-NAPE/ntu_cv_agcn_test_joint
 save_score: True

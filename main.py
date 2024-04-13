@@ -23,7 +23,7 @@ from torch.autograd import Variable
 from torch.optim.lr_scheduler import _LRScheduler
 from tqdm import tqdm
 
-sys.path.append("node2vec/src")
+sys.path.append("/dcs/pg20/u2034358/codes/NAPE-wt-node2vec/src")
 
 
 class GradualWarmupScheduler(_LRScheduler):

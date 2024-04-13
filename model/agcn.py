@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.nn import init
-
+from model.trans_pos_encode import TT_Pos_Encode
 
 def import_class(name):
     components = name.split('.')
@@ -142,7 +142,6 @@ class Model(nn.Module):
             self.graph = Graph(**graph_args)
 
         A = self.graph.A
-        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
         # Position Encoding
         hidden_size = 64
@@ -160,6 +159,8 @@ class Model(nn.Module):
             print("\n\n!!!NOT USING PE!!!\n\n")
             self.pos_encode = None
 
+
+        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
         # build networks
         self.l1 = TCN_GCN_unit(in_channels, 64, A, residual=False)

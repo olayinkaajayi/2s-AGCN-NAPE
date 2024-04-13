@@ -9,7 +9,7 @@ import numpy as np
 import torch.nn.functional as F
 
 from NAPE import Position_encode
-from training_utils_py2 import toNumpy
+# from training_utils_py2 import toNumpy
 
 
 class TT_Pos_Encode(nn.Module):
@@ -37,7 +37,7 @@ class TT_Pos_Encode(nn.Module):
         else: #Kinetics 400 Dataset
             last_str = 'checkpoint_pos_encode_kinetics.pt'
 
-        PE.load_state_dict(torch.load(f'{Path.home()}/codes/node2vec/Saved_models/'+f'd={d}_{last_str}'))
+        PE.load_state_dict(torch.load(f'{Path.home()}/codes/NAPE-wt-node2vec/Saved_models/'+f'd={d}_{last_str}'))
         PE.eval()
         Z,_,_,_ = PE(test=True)
         err = 0.0001
