@@ -180,21 +180,26 @@ class Model(nn.Module):
 
     def forward(self, x):
 
+        # Reshape to suit batchnorm
+        x = x.view(N,T,2,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
+        x = self.data_bn(x)
+
         if self.pos_encode is not None:
+
+            # Reshape to suit position encoding
+            x = x.view(N, M, V, C, T).permute(0, 4, 1, 2, 3).contiguous().view(N, T, M*V, C)
+
             x = self.proj_input(x) # project only when using position encoding
             # we use .detach() for the position encoding
             # so it is not part of the computation graph when computing gradients.
             pos_encode = self.pos_encode.detach()
             x = x + pos_encode.repeat(2,1) #Add position encoding
 
-        # Reshape to suite model
-        N, T, V2, C = x.size()
-        x = x.view(N,T,2,-1,C).permute(0,4,1,3,2).contiguous()
+            # Reshape to suite model
+            N, T, MV, C = x.size()
+            x = x.view(N,T,2,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
 
-
-        N, C, T, V, M = x.size()
-        x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
-        x = self.data_bn(x) ########## CONSIDER ADDING POSITION ENCODING AFTER NORMALIZATION
+        # Final adjustment for model
         x = x.view(N, M, V, C, T).permute(0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
 
         x = self.l1(x)
