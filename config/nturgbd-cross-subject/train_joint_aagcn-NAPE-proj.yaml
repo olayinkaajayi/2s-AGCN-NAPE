@@ -1,0 +1,67 @@
+work_dir: ./work_dir-NAPE/ntu/xsub/aagcn_joint
+model_saved_name: ./runs-NAPE/ntu_cs_aagcn_joint
+# feeder
+feeder: feeders.feeder.Feeder
+train_feeder_args:
+  data_path: /dcs/large/u2034358/ntu/NTU60_CS_aligned.npz
+  label_path: None
+  p_interval: [0.5, 1]
+  split: 'train'
+  random_choose: False
+  random_shift: False
+  random_move: False
+  random_rot: True
+  window_size: -1
+  normalization: False
+  debug: False
+  use_mmap: False
+  vel: False
+  sort: False
+  repeat: True
+
+test_feeder_args:
+  data_path: /dcs/large/u2034358/ntu/NTU60_CS_aligned.npz
+  label_path: None
+  p_interval: [0.95]
+  split: 'test'
+  random_choose: False
+  random_shift: False
+  random_move: False
+  random_rot: True
+  window_size: -1
+  normalization: False
+  debug: False
+  use_mmap: False
+  vel: False
+  sort: False
+  repeat: True
+
+# model
+model: model.aagcn.Model
+model_args:
+  num_class: 60
+  num_point: 25
+  num_person: 2
+  graph: graph.ntu_rgb_d.Graph
+  graph_args:
+    labeling_mode: 'spatial'
+  d: 8
+  PE_name: 'checkpoint_betaNAPE_ntu-sb.pt'
+  use_PE: True
+  just_project: True
+
+#optim
+weight_decay: 0.0001
+base_lr: 0.1
+step: [30, 40]
+warm_up_epoch: 5
+
+# training
+device: [0, 1]
+batch_size: 64
+test_batch_size: 64
+num_epoch: 50
+nesterov: True
+
+only_train_part: True
+only_train_epoch: 5
