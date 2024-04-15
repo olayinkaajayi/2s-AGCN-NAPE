@@ -289,6 +289,7 @@ class TCN_GCN_unit(nn.Module):
 class Model(nn.Module):
     def __init__(self, num_class=60, num_point=25, num_person=2, graph=None, graph_args=dict(), in_channels=3,
                  drop_out=0, adaptive=True, attention=True, d=8, PE_name='', use_PE=True, just_project=False):
+                 drop_out=0, adaptive=True, attention=True, d=8, PE_name='', use_PE=True, just_project=False):
         super(Model, self).__init__()
 
         if graph is None:
@@ -357,6 +358,9 @@ class Model(nn.Module):
             x = self.proj_input(x) # project only when using position encoding
             # we use .detach() for the position encoding
             # so it is not part of the computation graph when computing gradients.
+            if not self.just_project:
+                pos_encode = self.pos_encode.detach()
+                x = x + pos_encode.repeat(2,1) #Add position encoding
             if not self.just_project:
                 pos_encode = self.pos_encode.detach()
                 x = x + pos_encode.repeat(2,1) #Add position encoding
