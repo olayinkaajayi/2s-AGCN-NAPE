@@ -1,3 +1,4 @@
+# It appears I would not be needing this
 work_dir: ./work_dir-NAPE/ntu/xsub/aagcn_joint-proj
 model_saved_name: ./runs-NAPE/ntu_cs_aagcn_joint-proj
 # feeder

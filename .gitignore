@@ -118,3 +118,7 @@ zz_jobs_*
 # scripts
 *.sbatch
 script_tensorboard.sh
+
+# Extras
+train_joint_aagcn-NAPE-proj.yaml
+train_joint_aagcn-NAPE.yaml
