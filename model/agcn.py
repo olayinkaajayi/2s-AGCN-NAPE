@@ -132,7 +132,7 @@ class TCN_GCN_unit(nn.Module):
 
 class Model(nn.Module):
     def __init__(self, num_class=60, num_point=25, num_person=2, graph=None,
-                    graph_args=dict(), in_channels=3, d=8, PE_name='', use_PE=True):
+                    graph_args=dict(), in_channels=3, d=8, PE_name='', use_PE=True, just_project=False):
         super(Model, self).__init__()
 
         if graph is None:
@@ -147,10 +147,16 @@ class Model(nn.Module):
         hidden_size = 64
         num_nodes = num_point
         if use_PE:
-            PE = TT_Pos_Encode(hidden_size, num_nodes, d, PE_name)
-            pos_encode = PE.get_position_encoding(need_plot=False)
-            self.register_buffer('pos_encode', pos_encode)
-            print("\n\n!!!USING Position Encoding!!!\n\n")
+            if not just_project:
+                # We use this to check the effect of just projecting the
+                # features without adding the position encoding.
+                self.just_project = just_project
+                PE = TT_Pos_Encode(hidden_size, num_nodes, d, PE_name)
+                pos_encode = PE.get_position_encoding(need_plot=False)
+                self.register_buffer('pos_encode', pos_encode)
+                print("\n\n!!!USING Position Encoding!!!\n\n")
+            else:
+                print("\n\n!!!Projecting without Position Encoding!!!\n\n")
 
             self.proj_input = nn.Linear(in_channels,hidden_size,bias=False)
             init.xavier_uniform_(self.proj_input.weight)
@@ -192,8 +198,9 @@ class Model(nn.Module):
             x = self.proj_input(x) # project only when using position encoding
             # we use .detach() for the position encoding
             # so it is not part of the computation graph when computing gradients.
-            pos_encode = self.pos_encode.detach()
-            x = x + pos_encode.repeat(2,1) #Add position encoding
+            if not self.just_project:
+                pos_encode = self.pos_encode.detach()
+                x = x + pos_encode.repeat(2,1) #Add position encoding
 
             # Reshape to suite model
             N, T, MV, C = x.size()

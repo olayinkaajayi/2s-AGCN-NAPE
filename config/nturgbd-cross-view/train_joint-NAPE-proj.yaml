@@ -1,9 +1,9 @@
-work_dir: ./work_dir/ntu/xsub/aagcn_joint
-model_saved_name: ./runs/ntu_cs_aagcn_joint
+work_dir: ./work_dir-NAPE/ntu/xview/agcn_joint
+model_saved_name: ./runs-NAPE/ntu_cv_agcn_joint
 # feeder
 feeder: feeders.feeder.Feeder
 train_feeder_args:
-  data_path: /dcs/large/u2034358/ntu/NTU60_CS_aligned.npz
+  data_path: /dcs/large/u2034358/ntu/NTU60_CV_aligned.npz
   label_path: None
   p_interval: [0.5, 1]
   split: 'train'
@@ -20,7 +20,7 @@ train_feeder_args:
   repeat: True
 
 test_feeder_args:
-  data_path: /dcs/large/u2034358/ntu/NTU60_CS_aligned.npz
+  data_path: /dcs/large/u2034358/ntu/NTU60_CV_aligned.npz
   label_path: None
   p_interval: [0.95]
   split: 'test'
@@ -37,7 +37,7 @@ test_feeder_args:
   repeat: True
 
 # model
-model: model.aagcn.Model
+model: model.agcn.Model
 model_args:
   num_class: 60
   num_point: 25
@@ -47,21 +47,21 @@ model_args:
     labeling_mode: 'spatial'
   d: 8
   PE_name: 'checkpoint_betaNAPE_ntu-sb.pt'
-  use_PE: False
-  just_project: False
+  use_PE: True
+  just_project: True
 
 #optim
 weight_decay: 0.0001
 base_lr: 0.1
 step: [30, 40]
-warm_up_epoch: 5
 
 # training
-device: [0, 1]
+device: [0,1]
 batch_size: 64
 test_batch_size: 64
 num_epoch: 50
 nesterov: True
 
-only_train_part: True
-only_train_epoch: 5
+
+work_dir: ./work_dir-NAPE/ntu/xview/agcn_train_joint
+model_saved_name: ./runs-NAPE/ntu_cv_agcn_train_joint

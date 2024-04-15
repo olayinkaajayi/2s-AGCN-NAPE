@@ -29,6 +29,7 @@ model_args:
   d: 8
   PE_name: 'checkpoint_betaNAPE_ntu-sb.pt'
   use_PE: True
+  just_project: False
 
 # test
 phase: test
