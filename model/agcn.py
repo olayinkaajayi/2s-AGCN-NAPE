@@ -133,7 +133,6 @@ class TCN_GCN_unit(nn.Module):
 class Model(nn.Module):
     def __init__(self, num_class=60, num_point=25, num_person=2, graph=None,
                     graph_args=dict(), in_channels=3, d=8, PE_name='', use_PE=True, just_project=False):
-                    graph_args=dict(), in_channels=3, d=8, PE_name='', use_PE=True, just_project=False):
         super(Model, self).__init__()
 
         if graph is None:
