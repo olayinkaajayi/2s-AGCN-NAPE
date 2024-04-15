@@ -298,21 +298,25 @@ class Model(nn.Module):
             self.graph = Graph(**graph_args)
 
         A = self.graph.A
+        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
         self.num_class = num_class
 
         # Position Encoding
         hidden_size = 64
         num_nodes = num_point
+        self.num_person = num_person
+        self.num_nodes = num_nodes
         if use_PE:
+            self.just_project = just_project
             if not just_project:
                 # We use this to check the effect of just projecting the
                 # features without adding the position encoding.
-                self.just_project = just_project
                 PE = TT_Pos_Encode(hidden_size, num_nodes, d, PE_name)
                 pos_encode = PE.get_position_encoding(need_plot=False)
                 self.register_buffer('pos_encode', pos_encode)
                 print("\n\n!!!USING Position Encoding!!!\n\n")
             else:
+                self.pos_encode = True
                 print("\n\n!!!Projecting without Position Encoding!!!\n\n")
 
             self.proj_input = nn.Linear(in_channels,hidden_size,bias=False)
@@ -322,8 +326,8 @@ class Model(nn.Module):
             print("\n\n!!!NOT USING PE!!!\n\n")
             self.pos_encode = None
 
-        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
+        # build networks
         self.l1 = TCN_GCN_unit(in_channels, 64, A, residual=False, adaptive=adaptive, attention=attention)
         self.l2 = TCN_GCN_unit(64, 64, A, adaptive=adaptive, attention=attention)
         self.l3 = TCN_GCN_unit(64, 64, A, adaptive=adaptive, attention=attention)
@@ -346,7 +350,10 @@ class Model(nn.Module):
     def forward(self, x):
 
         # Reshape to suit batchnorm
-        x = x.view(N,T,2,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
+        N, T, MV, C = x.size()
+        M = self.num_person
+        V = self.num_nodes
+        x = x.view(N,T,M,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
 
         if self.pos_encode is not None:
@@ -360,10 +367,7 @@ class Model(nn.Module):
             if not self.just_project:
                 pos_encode = self.pos_encode.detach()
                 x = x + pos_encode.repeat(2,1) #Add position encoding
-            if not self.just_project:
-                pos_encode = self.pos_encode.detach()
-                x = x + pos_encode.repeat(2,1) #Add position encoding
-
+           
             # Reshape to suite model
             N, T, MV, C = x.size()
             x = x.view(N,T,2,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
