@@ -35,7 +35,7 @@ model_args:
 phase: test
 device: [0,1]
 test_batch_size: 256
-weights: ./runs-NAPE/ntu_cs_aagcn_joint-49-31300.pt
+weights: ./runs-NAPE/ntu_cs_aagcn_joint-proj-49-31300.pt
 
 work_dir: ./work_dir-NAPE/ntu/xsub/aagcn_joint
 model_saved_name: ./runs-NAPE/ntu_cs_aagcn_joint

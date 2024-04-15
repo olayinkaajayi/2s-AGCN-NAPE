@@ -1,3 +1,4 @@
+# Using this: no modification actually
 work_dir: ./work_dir/ntu/xsub/agcn_joint
 model_saved_name: ./runs/ntu_cs_agcn_joint
 # feeder
