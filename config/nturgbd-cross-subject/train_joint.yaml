@@ -48,6 +48,8 @@ model_args:
   d: 8
   PE_name: 'checkpoint_betaNAPE_ntu-sb.pt'
   use_PE: False
+  just_project: False
+  
 
 #optim
 weight_decay: 0.0001
