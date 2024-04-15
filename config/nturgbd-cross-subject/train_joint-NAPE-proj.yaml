@@ -47,8 +47,8 @@ model_args:
     labeling_mode: 'spatial'
   d: 8
   PE_name: 'checkpoint_betaNAPE_ntu-sb.pt'
-  use_PE: False
-  just_project: False
+  use_PE: True
+  just_project: True
   
 
 #optim
