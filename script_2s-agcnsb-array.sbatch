@@ -70,8 +70,8 @@ code=/dcs/pg20/u2034358/codes/2s-AGCN-NAPE/main.py
 # cd codes
 conda activate yinka_env
 
-python main.py --config ./config/nturgbd-cross-view/train_joint-NAPE.yaml 
-# python main.py --config ./config/nturgbd-cross-view/test_joint-NAPE.yaml
+# python main.py --config ./config/nturgbd-cross-subject/train_joint_aagcn-NAPE.yaml
+python main.py --config ./config/nturgbd-cross-subject/test_joint-NAPE.yaml
 
 
 # python3 $code --checkpoint checkpoint_multistream_${current_case}${num_class}_infodata_seed${seed0}.pt --checkpoint_PE $checkpoint_pos_encode  \

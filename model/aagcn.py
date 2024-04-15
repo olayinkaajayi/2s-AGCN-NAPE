@@ -4,6 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from torch.nn import init
+from model.trans_pos_encode import TT_Pos_Encode
 
 
 def import_class(name):
@@ -286,7 +288,7 @@ class TCN_GCN_unit(nn.Module):
 
 class Model(nn.Module):
     def __init__(self, num_class=60, num_point=25, num_person=2, graph=None, graph_args=dict(), in_channels=3,
-                 drop_out=0, adaptive=True, attention=True):
+                 drop_out=0, adaptive=True, attention=True, d=8, PE_name='', use_PE=True):
         super(Model, self).__init__()
 
         if graph is None:
@@ -298,9 +300,25 @@ class Model(nn.Module):
         A = self.graph.A
         self.num_class = num_class
 
+        # Position Encoding
+        hidden_size = 64
+        num_nodes = num_point
+        if use_PE:
+            PE = TT_Pos_Encode(hidden_size, num_nodes, d, PE_name)
+            pos_encode = PE.get_position_encoding(need_plot=False)
+            self.register_buffer('pos_encode', pos_encode)
+            print("\n\n!!!USING Position Encoding!!!\n\n")
+
+            self.proj_input = nn.Linear(in_channels,hidden_size,bias=False)
+            init.xavier_uniform_(self.proj_input.weight)
+            in_channels = hidden_size
+        else:
+            print("\n\n!!!NOT USING PE!!!\n\n")
+            self.pos_encode = None
+
         self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
-        self.l1 = TCN_GCN_unit(3, 64, A, residual=False, adaptive=adaptive, attention=attention)
+        self.l1 = TCN_GCN_unit(in_channels, 64, A, residual=False, adaptive=adaptive, attention=attention)
         self.l2 = TCN_GCN_unit(64, 64, A, adaptive=adaptive, attention=attention)
         self.l3 = TCN_GCN_unit(64, 64, A, adaptive=adaptive, attention=attention)
         self.l4 = TCN_GCN_unit(64, 64, A, adaptive=adaptive, attention=attention)
@@ -320,8 +338,20 @@ class Model(nn.Module):
             self.drop_out = lambda x: x
 
     def forward(self, x):
-        N, C, T, V, M = x.size()
 
+        if self.pos_encode is not None:
+            x = self.proj_input(x) # project only when using position encoding
+            # we use .detach() for the position encoding
+            # so it is not part of the computation graph when computing gradients.
+            pos_encode = self.pos_encode.detach()
+            x = x + pos_encode.repeat(2,1) #Add position encoding
+
+        # Reshape to suite model
+        N, T, V2, C = x.size()
+        x = x.view(N,T,2,-1,C).permute(0,4,1,3,2).contiguous()
+
+
+        N, C, T, V, M = x.size()
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
         x = x.view(N, M, V, C, T).permute(0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
