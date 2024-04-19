@@ -18,7 +18,7 @@ test_feeder_args:
   repeat: True
 
 # model
-model: model.aagcn.Model
+model: model.agcn.Model
 model_args:
   num_class: 60
   num_point: 25
@@ -34,9 +34,9 @@ model_args:
 # test
 phase: test
 device: [0,1]
-test_batch_size: 256
-weights: ./runs-NAPE/ntu_cs_aagcn_joint-proj-49-31300.pt
+test_batch_size: 64
+weights: ./runs-NAPE/ntu_cs_agcn_joint-proj-49-31300.pt
 
-work_dir: ./work_dir-NAPE/ntu/xsub/aagcn_joint-proj
-model_saved_name: ./runs-NAPE/ntu_cs_aagcn_joint-proj
+work_dir: ./work_dir-NAPE/ntu/xsub/agcn_joint-proj
+model_saved_name: ./runs-NAPE/ntu_cs_agcn_joint-proj
 save_score: True
