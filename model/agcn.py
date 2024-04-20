@@ -142,7 +142,6 @@ class Model(nn.Module):
             self.graph = Graph(**graph_args)
 
         A = self.graph.A
-        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
         # Position Encoding
         hidden_size = 64
@@ -169,6 +168,7 @@ class Model(nn.Module):
             print("\n\n!!!NOT USING PE!!!\n\n")
             self.pos_encode = None
 
+        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
         # build networks
         self.l1 = TCN_GCN_unit(in_channels, 64, A, residual=False)
@@ -188,17 +188,7 @@ class Model(nn.Module):
 
     def forward(self, x):
 
-        # Reshape to suit batchnorm
-        N, T, MV, C = x.size()
-        M = self.num_person
-        V = self.num_nodes
-        x = x.view(N,T,M,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
-        x = self.data_bn(x)
-
         if self.pos_encode is not None:
-
-            # Reshape to suit position encoding
-            x = x.view(N, M, V, C, T).permute(0, 4, 1, 2, 3).contiguous().view(N, T, M*V, C)
 
             x = self.proj_input(x) # project only when using position encoding
             # we use .detach() for the position encoding
@@ -207,9 +197,12 @@ class Model(nn.Module):
                 pos_encode = self.pos_encode.detach()
                 x = x + pos_encode.repeat(2,1) #Add position encoding
             
-            # Reshape to suite model
-            N, T, MV, C = x.size()
-            x = x.view(N,T,2,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
+        # Reshape to suit batchnorm
+        N, T, MV, C = x.size()
+        M = self.num_person
+        V = self.num_nodes
+        x = x.view(N,T,M,-1,C).permute(0,2,3,4,1).contiguous().view(N, M * V * C, T)
+        x = self.data_bn(x)
 
         # Final adjustment for model
         x = x.view(N, M, V, C, T).permute(0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
